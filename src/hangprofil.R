@@ -44,6 +44,18 @@ getgesheight <- function(height, refheight){
     return(sumheight)
 }
 
+gethorizontal <- function(distance, degree) {
+    vc_length = distance[-1] - distance[-length(distance)] # Berechnung der Strecken zwischen den Abschnitten
+    
+    horizontal <- vc_length * cos(degree*(pi/180)) #https://stackoverflow.com/questions/21402259/radian-measure-in-sin-in-r
+    horizontal = c(0,horizontal[-length(horizontal)])
+    for (i in 2:length(distance)) {
+        horizontal[i]<- horizontal[i-1]+horizontal[i]
+    }
+    return(horizontal)
+}
+
+
 getplot <- function(distance, gesheight, refheight, title){
     plot(gesheight~distance , type="o" , lwd=3, col=1 , 
          ylim = c(min(gesheight)-10, refheight) , ylab="Höhe über NN (m)",
@@ -57,17 +69,19 @@ getplot <- function(distance, gesheight, refheight, title){
 
 nb_h <- getheight(tbl_neubuerg$Distanz, tbl_neubuerg$Winkel)
 nb_gh <- getgesheight(nb_h, attributes(tbl_neubuerg)$referenzhoehe)
+nb_hor <- gethorizontal(tbl_neubuerg$Distanz, tbl_neubuerg$Winkel)
 
 fh_h <- getheight(tbl_frankenhaag$Distanz, tbl_frankenhaag$Winkel)
 fh_gh <- getgesheight(fh_h, attributes(tbl_frankenhaag)$referenzhoehe)
+fh_hor <- gethorizontal(tbl_frankenhaag$Distanz, tbl_frankenhaag$Winkel)
 
 
 
 ## Plot ========================================================================
-getplot(tbl_neubuerg$Distanz, nb_gh, attributes(tbl_neubuerg)$referenzhoehe, 
+getplot(nb_hor, nb_gh, attributes(tbl_neubuerg)$referenzhoehe, 
         "Höhenprofil Neubürg")
 
-getplot(tbl_frankenhaag$Distanz, fh_gh, attributes(tbl_frankenhaag)$referenzhoehe, 
+getplot(fh_hor, fh_gh, attributes(tbl_frankenhaag)$referenzhoehe, 
         "Höhenprofil Frankenhaag")
 
 # CLEAN UP #####################################################################
